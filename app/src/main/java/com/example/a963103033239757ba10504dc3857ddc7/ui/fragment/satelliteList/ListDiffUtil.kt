@@ -1,7 +1,7 @@
 package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteList
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.a963103033239757ba10504dc3857ddc7.ui.model.satellite.SatelliteListModelItem
+import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
 
 
 class ListDiffUtil : DiffUtil.ItemCallback<SatelliteListModelItem>() {

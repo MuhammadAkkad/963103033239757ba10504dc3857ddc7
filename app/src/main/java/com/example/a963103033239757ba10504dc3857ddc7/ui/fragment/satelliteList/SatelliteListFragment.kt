@@ -1,26 +1,25 @@
 package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteList
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
 import com.example.a963103033239757ba10504dc3857ddc7.databinding.FragmentSatelliteListBinding
-import com.example.a963103033239757ba10504dc3857ddc7.ui.model.satellite.SatelliteListModelItem
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class SatelliteListFragment : Fragment() {
 
     private var _binding: FragmentSatelliteListBinding? = null
@@ -29,11 +28,8 @@ class SatelliteListFragment : Fragment() {
 
     lateinit var adapter: SatelliteAdapter
 
-    companion object {
-        fun newInstance() = SatelliteListFragment()
-    }
+    private val viewModel: SatelliteListViewModel by viewModels()
 
-    private lateinit var viewModel: SatilliteListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,17 +39,20 @@ class SatelliteListFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupList()
+    override fun onResume() {
+        super.onResume()
         setupEditTextSearch()
+        getSatelliteList()
     }
 
-    private fun setupList() {
-        val list = ArrayList<SatelliteListModelItem>()
-        list.add(SatelliteListModelItem(111, "One-1", false))
-        list.add(SatelliteListModelItem(112, "Two-2", true))
-        list.add(SatelliteListModelItem(113, "Three-3", true))
+    private fun getSatelliteList() {
+        viewModel.getList()
+        viewModel.data.observe(viewLifecycleOwner) {
+            setupList(it)
+        }
+    }
+
+    private fun setupList(list: ArrayList<SatelliteListModelItem>) {
         adapter = SatelliteAdapter(list)
         binding.satelliteListRv.adapter = adapter
         binding.satelliteListRv.layoutManager = LinearLayoutManager(requireContext())
@@ -67,16 +66,19 @@ class SatelliteListFragment : Fragment() {
 
     private fun setupEditTextSearch() {
         var debounceJob: Job? = null
-        val delay = 400L
+        val delay = 500L
 
         binding.searchEt.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
-                debounceJob?.cancel()
-                debounceJob = this@SatelliteListFragment.viewLifecycleOwner.lifecycle.coroutineScope
-                    .launch(Dispatchers.Main) {
-                        delay(delay)
-                        adapter.filter.filter(text?.toString()?.trim())
-                    }
+                if (text?.trim()?.isNotEmpty() == true) {
+                    debounceJob?.cancel()
+                    debounceJob = viewLifecycleOwner.lifecycle.coroutineScope
+                        .launch(Dispatchers.Main) {
+                            delay(delay)
+                            adapter.filter.filter(text.toString().trim())
+                        }
+                }
+
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {

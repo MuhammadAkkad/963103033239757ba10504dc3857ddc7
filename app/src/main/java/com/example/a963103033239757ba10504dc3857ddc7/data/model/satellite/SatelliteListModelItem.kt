@@ -1,4 +1,4 @@
-package com.example.a963103033239757ba10504dc3857ddc7.ui.model.satellite
+package com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite
 
 data class SatelliteListModelItem(
     val id: Int,

@@ -5,7 +5,7 @@
 
         <variable
             name="model"
-            type="com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteDetail.SatelliteDetailModel" />
+            type="com.example.a963103033239757ba10504dc3857ddc7.domain.model.SatelliteDetailModel" />
 
     </data>
 
@@ -39,30 +39,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
-            android:text="@{model.height_mass}"
+            android:styleString="@{@string/height_mass(model.height_mass)}"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:textStyle="bold"
             tools:text="Mass: 110/0101" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@{model.coast}"
+            android:styleString="@{@string/coast(model.coast)}"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:textStyle="bold"
             tools:text="Coast:8000" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@{model.lastPosition}"
+            android:styleString="@{@string/last_position(model.lastPosition)}"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:textStyle="bold"
             tools:text="Last Pos:" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

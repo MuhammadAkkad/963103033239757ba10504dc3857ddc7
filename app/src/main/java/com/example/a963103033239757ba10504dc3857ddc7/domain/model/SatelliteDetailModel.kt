@@ -1,4 +1,4 @@
-package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteDetail
+package com.example.a963103033239757ba10504dc3857ddc7.domain.model
 
 data class SatelliteDetailModel(
     val name: String,

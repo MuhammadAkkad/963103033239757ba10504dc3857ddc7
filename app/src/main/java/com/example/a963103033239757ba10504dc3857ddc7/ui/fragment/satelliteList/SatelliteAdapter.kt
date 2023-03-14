@@ -7,7 +7,7 @@ import android.widget.Filterable
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a963103033239757ba10504dc3857ddc7.databinding.ItemSatelliteLayoutBinding
-import com.example.a963103033239757ba10504dc3857ddc7.ui.model.satellite.SatelliteListModelItem
+import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
 import java.util.*
 
 class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :

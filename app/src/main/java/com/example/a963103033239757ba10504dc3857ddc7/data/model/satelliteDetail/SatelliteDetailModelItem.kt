@@ -1,4 +1,4 @@
-package com.example.a963103033239757ba10504dc3857ddc7.ui.model.satelliteDetail
+package com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail
 
 data class SatelliteDetailModelItem(
     val cost_per_launch: Int,
