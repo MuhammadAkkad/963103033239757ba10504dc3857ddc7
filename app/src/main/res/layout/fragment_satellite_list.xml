@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background_color"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/searchEt"
+            android:layout_width="match_parent"
+            android:layout_height="34dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/rounded_corners_background"
+            android:drawableStart="@drawable/round_search_24"
+            android:hint="@string/search_hint"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/satelliteListRv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            tools:context=".ui.fragment.satelliteList.SatelliteListFragment" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</layout>
