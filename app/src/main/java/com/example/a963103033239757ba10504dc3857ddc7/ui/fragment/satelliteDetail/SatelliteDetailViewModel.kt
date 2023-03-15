@@ -3,6 +3,7 @@ package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteDetai
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.toFormattedString
 import com.example.a963103033239757ba10504dc3857ddc7.domain.model.SatelliteDetailModel
@@ -30,23 +31,32 @@ class SatelliteDetailViewModel @Inject constructor(private val repository: Satel
     private val delay = 3000L
 
     fun getSatelliteDetails(id: String) {
-        val data = repository.getSatelliteDetails(id)
-        data?.let {
-            // on screen rotation continue from same index instead of starting from the beginning
-            it.lastPosition = it.positionsList[index].toFormattedString()
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = repository.getSatelliteDetails(id)
+            data.let { flow ->
+                flow.collect { model ->
+                    run {
+                        model?.let {
+                            // on screen rotation continue from same index instead of starting from the beginning
+                            model.lastPosition = model.positionsList[index].toFormattedString()
 
-            // trigger observer with satellite data
-            satelliteLiveData.postValue(it)
+                            // trigger observer with satellite data
+                            satelliteLiveData.postValue(model)
 
-            // set max index range
-            maxIndex = it.positionsList.lastIndex
+                            // set max index range
+                            maxIndex = model.positionsList.lastIndex
 
-            // to avoid consecutive additions
-            positionsList.clear()
-            positionsList.addAll(it.positionsList)
+                            // to avoid consecutive additions
+                            positionsList.clear()
+                            positionsList.addAll(model.positionsList)
 
-            // after successfully fetching data start refreshing position
-            refreshJob = startRepeatingJob()
+                            // after successfully fetching data start refreshing position
+                            refreshJob = startRepeatingJob()
+                        }
+
+                    }
+                }
+            }
         }
     }
 

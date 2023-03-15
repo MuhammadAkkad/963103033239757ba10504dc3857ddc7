@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
 import com.example.a963103033239757ba10504dc3857ddc7.databinding.FragmentSatelliteListBinding
@@ -46,7 +45,7 @@ class SatelliteListFragment : Fragment() {
 
     private fun getSatelliteList() {
         viewModel.getList()
-        viewModel.data.observe(viewLifecycleOwner) {
+        viewModel.liveData.observe(viewLifecycleOwner) {
             setupList(it)
         }
     }
