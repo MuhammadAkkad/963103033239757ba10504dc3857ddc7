@@ -9,9 +9,10 @@ fun DataModel.toSatelliteDetailModel(): SatelliteDetailModel {
     val date = satelliteDetails.first_flight.formatDate()
     val heightMass = "${satelliteDetails.height}/${satelliteDetails.mass}"
     val coast = satelliteDetails.cost_per_launch.formatDigit()
-    val positions = list[0].toFormattedString()
+    val lastPositions = list[0].toFormattedString()
+    val positionsList = list
     return SatelliteDetailModel(
-        name, date, heightMass, coast, positions
+        name, date, heightMass, coast, lastPositions, positionsList
     )
 }
 

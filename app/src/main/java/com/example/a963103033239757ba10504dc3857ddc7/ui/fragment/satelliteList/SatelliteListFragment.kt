@@ -30,7 +30,6 @@ class SatelliteListFragment : Fragment() {
 
     private val viewModel: SatelliteListViewModel by viewModels()
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,12 +55,6 @@ class SatelliteListFragment : Fragment() {
         adapter = SatelliteAdapter(list)
         binding.satelliteListRv.adapter = adapter
         binding.satelliteListRv.layoutManager = LinearLayoutManager(requireContext())
-        binding.satelliteListRv.addItemDecoration(
-            DividerItemDecoration(
-                requireContext(),
-                LinearLayoutManager.HORIZONTAL
-            )
-        )
     }
 
     private fun setupEditTextSearch() {
