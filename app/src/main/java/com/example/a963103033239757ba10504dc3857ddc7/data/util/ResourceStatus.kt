@@ -6,10 +6,6 @@ data class ResourceStatus<out T>(val status: Status, val data: T?, val error: St
 
     companion object {
 
-        fun <T> loading(): ResourceStatus<T> {
-            return ResourceStatus(Status.LOADING, null, null)
-        }
-
         fun <T> success(data: T?): ResourceStatus<T> {
             return ResourceStatus(Status.SUCCESS, data, null)
         }
@@ -22,6 +18,5 @@ data class ResourceStatus<out T>(val status: Status, val data: T?, val error: St
 
 enum class Status {
     SUCCESS,
-    ERROR,
-    LOADING
+    ERROR
 }

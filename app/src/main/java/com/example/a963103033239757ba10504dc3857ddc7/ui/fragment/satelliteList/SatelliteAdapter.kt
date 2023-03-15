@@ -54,8 +54,8 @@ class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :
         return object : Filter() {
             override fun performFiltering(text: CharSequence?): FilterResults {
                 val charString: String = text.toString()
-                if (charString.isEmpty()) {
-                    itemListFiltered = itemList
+                itemListFiltered = if (charString.isEmpty()) {
+                    itemList
                 } else {
                     val filteredList: MutableList<SatelliteListModelItem> = ArrayList()
                     for (row in itemList) {
@@ -65,7 +65,7 @@ class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :
                             filteredList.add(row)
                         }
                     }
-                    itemListFiltered = filteredList
+                    filteredList
                 }
 
                 val filterResults = FilterResults()

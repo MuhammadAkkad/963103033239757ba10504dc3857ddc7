@@ -7,6 +7,7 @@ import com.example.a963103033239757ba10504dc3857ddc7.data.model.FileNameEnum.*
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionsItemObjectModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
+import com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelItem
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.JsonHelper
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.ResourceStatus
@@ -23,17 +24,17 @@ import javax.inject.Inject
 
 class SatelliteListRepositoryImpl @Inject constructor(
     private val assetProvider: AssetDataProviderProvider,
-    private val dao: SatelliteDao, private val gson: Gson
+    private val dao: SatelliteDao,
+    private val gson: Gson
 ) : SatelliteListRepository {
 
     override suspend fun getSatelliteList(): Flow<ResourceStatus<List<SatelliteListModelItem>>> {
         return flow {
             try {
-                val jsonString = assetProvider.getJsonFromAsset(SATELLITE.value)
-                jsonString?.let {
+                assetProvider.getJsonFromAsset(SATELLITE.value).let {
                     val list =
                         JsonHelper.fromJsonList(
-                            jsonString,
+                            it,
                             SatelliteListModelItem::class.java,
                             gson
                         )
@@ -43,8 +44,6 @@ class SatelliteListRepositoryImpl @Inject constructor(
                 emit(ResourceStatus.error(e.stackTrace.toString()))
                 Log.e("Error while fetching data", e.stackTrace.toString())
             }
-
-
         }.flowOn(Dispatchers.IO)
     }
 
@@ -59,21 +58,21 @@ class SatelliteListRepositoryImpl @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    private suspend fun getData(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto {
+    private suspend fun getData(id: String): SatelliteDetailModelDto {
         // if data presents in db return it else get it from json file
         return fetchFromDb(id) ?: fetchFromJson(id)
     }
 
-    private suspend fun fetchFromDb(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto? {
+    private suspend fun fetchFromDb(id: String): SatelliteDetailModelDto? {
         return dao.getSatelliteById(id)
     }
 
-    private suspend fun fetchFromJson(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto {
+    private suspend fun fetchFromJson(id: String): SatelliteDetailModelDto {
         val name = getNameById(id)
         val details = getDetailById(id)
         val positions = getPositionsById(id)
         val satelliteDetailModelDto =
-            (com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto(
+            (SatelliteDetailModelDto(
                 id.toInt(),
                 name,
                 details,
@@ -83,7 +82,7 @@ class SatelliteListRepositoryImpl @Inject constructor(
         return satelliteDetailModelDto
     }
 
-    private suspend fun saveToDb(satelliteDetailModelDto: com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto) {
+    private suspend fun saveToDb(satelliteDetailModelDto: SatelliteDetailModelDto) {
         dao.insertSatellite(satelliteDetailModelDto)
     }
 
@@ -92,6 +91,7 @@ class SatelliteListRepositoryImpl @Inject constructor(
         val satelliteListObject =
             JsonHelper.fromJsonList(satelliteList, SatelliteListModelItem::class.java, gson)
         return satelliteListObject.single { it.id.toString() == id }.name
+    // TODO get the exact element from JSON file immediately instead of getting the whole file then filtering out
     }
 
     private fun getDetailById(id: String): SatelliteDetailModelItem {
