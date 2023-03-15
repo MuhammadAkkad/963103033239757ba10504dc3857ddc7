@@ -5,6 +5,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
+import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,3 +19,7 @@ fun String.formatDate(): String =
 fun Int.formatDigit(): String =
     NumberFormat.getNumberInstance(Locale.GERMANY)
         .format(this)
+
+fun PositionModel.toFormattedString(): String {
+    return "($posX,$posY)"
+}

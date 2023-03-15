@@ -23,10 +23,6 @@ class SatelliteDetailFragment : Fragment() {
 
     private val viewModel: SatelliteDetailViewModel by viewModels()
 
-    private var refreshJob: Job? = null
-
-    private val delay = 2000L
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,17 +35,14 @@ class SatelliteDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         args.let {
-            getSatelliteDetails(it.id.toString())
             initializeObservers()
+            getSatelliteDetails(it.id.toString())
         }
     }
 
     private fun initializeObservers() {
-        viewModel.liveData.observe(viewLifecycleOwner) {
+        viewModel.satelliteLiveData.observe(viewLifecycleOwner) {
             binding.model = it
-            refreshJob =
-                startRepeatingJob()
-            // after successfully fetching data start refreshing position
         }
 
         viewModel.positionLiveData.observe(viewLifecycleOwner) {
@@ -58,29 +51,8 @@ class SatelliteDetailFragment : Fragment() {
         }
     }
 
-    private fun startRepeatingJob(): Job {
-        return refreshJob
-            ?: CoroutineScope(Dispatchers.Default).launch {
-                while (coroutineContext.isActive) {
-                    delay(delay)
-                    refreshPosition()
-                }
-            }
-    }
-
-    private fun refreshPosition() {
-        viewModel.refreshSatellitePosition()
-    }
-
     private fun getSatelliteDetails(id: String) {
         viewModel.getSatelliteDetails(id)
     }
 
-    override fun onPause() {
-        super.onPause()
-        CoroutineScope(Dispatchers.Default).launch {
-            refreshJob?.cancelAndJoin()
-            refreshJob = null
-        }
-    }
 }
