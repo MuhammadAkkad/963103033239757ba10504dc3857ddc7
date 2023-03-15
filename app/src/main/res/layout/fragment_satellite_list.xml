@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 
+    <data>
+
+        <variable
+            name="showLoading"
+            type="Boolean" />
+
+        <import type="android.view.View" />
+
+    </data>
+
     <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background_color"
         android:orientation="vertical">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="@{showLoading ? View.VISIBLE : View.INVISIBLE }" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/searchEt"

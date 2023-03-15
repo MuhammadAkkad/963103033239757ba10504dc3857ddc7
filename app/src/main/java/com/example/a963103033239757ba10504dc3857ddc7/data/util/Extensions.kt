@@ -1,10 +1,5 @@
 package com.example.a963103033239757ba10504dc3857ddc7.data.util
 
-import android.graphics.Typeface
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.StyleSpan
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat

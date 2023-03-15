@@ -3,13 +3,13 @@ package com.example.a963103033239757ba10504dc3857ddc7.data.repository
 import android.util.Log
 import com.example.a963103033239757ba10504dc3857ddc7.data.asset_provider.AssetDataProviderProvider
 import com.example.a963103033239757ba10504dc3857ddc7.data.db.SatelliteDao
-import com.example.a963103033239757ba10504dc3857ddc7.data.model.DataModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.FileNameEnum.*
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionsItemObjectModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelItem
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.JsonHelper
+import com.example.a963103033239757ba10504dc3857ddc7.data.util.ResourceStatus
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.toSatelliteDetailModel
 import com.example.a963103033239757ba10504dc3857ddc7.domain.model.SatelliteDetailModel
 import com.example.a963103033239757ba10504dc3857ddc7.domain.repository.SatelliteListRepository
@@ -26,47 +26,65 @@ class SatelliteListRepositoryImpl @Inject constructor(
     private val dao: SatelliteDao, private val gson: Gson
 ) : SatelliteListRepository {
 
-    override suspend fun getSatelliteList(): Flow<List<SatelliteListModelItem>> {
+    override suspend fun getSatelliteList(): Flow<ResourceStatus<List<SatelliteListModelItem>>> {
         return flow {
-            val jsonString = assetProvider.getJsonFromAsset(SATELLITE.value)
-            jsonString?.let {
-                val list =
-                    JsonHelper.fromJsonList(jsonString, SatelliteListModelItem::class.java, gson)
-                emit(list)
+            try {
+                val jsonString = assetProvider.getJsonFromAsset(SATELLITE.value)
+                jsonString?.let {
+                    val list =
+                        JsonHelper.fromJsonList(
+                            jsonString,
+                            SatelliteListModelItem::class.java,
+                            gson
+                        )
+                    emit(ResourceStatus.success(list))
+                }
+            } catch (e: JsonParseException) {
+                emit(ResourceStatus.error(e.stackTrace.toString()))
+                Log.e("Error while fetching data", e.stackTrace.toString())
             }
+
+
         }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun getSatelliteDetails(id: String): Flow<SatelliteDetailModel?> {
+    override suspend fun getSatelliteDetails(id: String): Flow<ResourceStatus<SatelliteDetailModel?>> {
         return flow {
             try {
-                emit(getData(id).toSatelliteDetailModel())
+                emit(ResourceStatus.success(getData(id).toSatelliteDetailModel()))
             } catch (e: JsonParseException) {
+                emit(ResourceStatus.error(e.stackTrace.toString()))
                 Log.e("Error while fetching data", e.stackTrace.toString())
             }
         }.flowOn(Dispatchers.IO)
     }
 
-    private suspend fun getData(id: String): DataModel {
+    private suspend fun getData(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto {
         // if data presents in db return it else get it from json file
         return fetchFromDb(id) ?: fetchFromJson(id)
     }
 
-    private suspend fun fetchFromDb(id: String): DataModel? {
+    private suspend fun fetchFromDb(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto? {
         return dao.getSatelliteById(id)
     }
 
-    private suspend fun fetchFromJson(id: String): DataModel {
+    private suspend fun fetchFromJson(id: String): com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto {
         val name = getNameById(id)
         val details = getDetailById(id)
         val positions = getPositionsById(id)
-        val dataModel = (DataModel(id.toInt(), name, details, positions))
-        saveToDb(dataModel) // TODO: find better logic.
-        return dataModel
+        val satelliteDetailModelDto =
+            (com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto(
+                id.toInt(),
+                name,
+                details,
+                positions
+            ))
+        saveToDb(satelliteDetailModelDto) // TODO: find better logic.
+        return satelliteDetailModelDto
     }
 
-    private suspend fun saveToDb(dataModel: DataModel) {
-        dao.insertSatellite(dataModel)
+    private suspend fun saveToDb(satelliteDetailModelDto: com.example.a963103033239757ba10504dc3857ddc7.data.model.satelliteDetail.SatelliteDetailModelDto) {
+        dao.insertSatellite(satelliteDetailModelDto)
     }
 
     private fun getNameById(id: String): String {

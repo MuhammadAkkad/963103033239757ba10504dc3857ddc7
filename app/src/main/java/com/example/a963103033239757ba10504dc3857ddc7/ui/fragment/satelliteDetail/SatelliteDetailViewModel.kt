@@ -1,24 +1,27 @@
 package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteDetail
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
 import com.example.a963103033239757ba10504dc3857ddc7.data.util.toFormattedString
-import com.example.a963103033239757ba10504dc3857ddc7.domain.model.SatelliteDetailModel
 import com.example.a963103033239757ba10504dc3857ddc7.domain.repository.SatelliteListRepository
+import com.example.a963103033239757ba10504dc3857ddc7.ui.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import javax.inject.Inject
 
 @HiltViewModel
 class SatelliteDetailViewModel @Inject constructor(private val repository: SatelliteListRepository) :
     ViewModel() {
 
-    val satelliteLiveData = MutableLiveData<SatelliteDetailModel>()
+    private val _uiState = MutableStateFlow(UIState())
+    val uiState: StateFlow<UIState> = _uiState
 
-    var positionLiveData = MutableLiveData<String>()
+    private val _uiStatePositions = MutableStateFlow(UIState())
+    val uiStatePositions: StateFlow<UIState> = _uiStatePositions
 
     private var index = 0
 
@@ -31,39 +34,39 @@ class SatelliteDetailViewModel @Inject constructor(private val repository: Satel
     private val delay = 3000L
 
     fun getSatelliteDetails(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val data = repository.getSatelliteDetails(id)
-            data.let { flow ->
-                flow.collect { model ->
-                    run {
-                        model?.let {
-                            // on screen rotation continue from same index instead of starting from the beginning
-                            model.lastPosition = model.positionsList[index].toFormattedString()
+        CoroutineScope(Dispatchers.IO).launch {
 
-                            // trigger observer with satellite data
-                            satelliteLiveData.postValue(model)
-
-                            // set max index range
-                            maxIndex = model.positionsList.lastIndex
-
-                            // to avoid consecutive additions
-                            positionsList.clear()
-                            positionsList.addAll(model.positionsList)
-
-                            // after successfully fetching data start refreshing position
-                            refreshJob = startRepeatingJob()
-                        }
-
-                    }
+            repository.getSatelliteDetails(id)
+                .catch {
+                    _uiState.value = UIState(it.message)
                 }
-            }
+                .collect { resourcesStatus ->
+                    resourcesStatus.data?.let { it ->
+                        // on screen rotation continue from same index instead of starting from the beginning
+                        it.lastPosition = it.positionsList[index].toFormattedString()
+
+                        // trigger observer with satellite data
+                        _uiState.value = UIState(it)
+
+                        // set max index range
+                        maxIndex = it.positionsList.lastIndex
+
+                        // to avoid consecutive additions
+                        positionsList.clear()
+                        positionsList.addAll(it.positionsList)
+
+                        // after successfully fetching data start refreshing position
+                        refreshJob = startRepeatingJob()
+                    }
+
+                }
         }
     }
 
     private fun refreshSatellitePosition() {
         Log.i("refresher", index.toString())
         if (positionsList.isNotEmpty()) {
-            positionLiveData.postValue(positionsList[index].toFormattedString())
+            _uiStatePositions.value = UIState(data = positionsList[index].toFormattedString())
             index = if (index == maxIndex) 0 else index + 1
         }
     }
