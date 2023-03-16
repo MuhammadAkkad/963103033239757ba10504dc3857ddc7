@@ -1,8 +1,6 @@
 package com.example.a963103033239757ba10504dc3857ddc7.ui.fragment.satelliteDetail
 
 import android.util.Log
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.position.PositionModel
@@ -19,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SatelliteDetailViewModel @Inject constructor(private val repository: SatelliteListRepository) :
-    ViewModel(), DefaultLifecycleObserver {
+    ViewModel() {
 
     private val _uiState = MutableStateFlow(UIState())
     val uiState: StateFlow<UIState> = _uiState
@@ -36,6 +34,10 @@ class SatelliteDetailViewModel @Inject constructor(private val repository: Satel
     private var refreshJob: Job? = null
 
     private val delay = 3000L
+
+    init {
+        refreshJob = createJob()
+    }
 
     fun getSatelliteDetails(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -60,40 +62,32 @@ class SatelliteDetailViewModel @Inject constructor(private val repository: Satel
                         positionsList.addAll(data.positionsList)
 
                         // after successfully fetching data start refreshing position
-                        refreshJob = startRepeatingJob()
+                        startRepeatingJob()
                     }
 
                 }
         }
     }
 
-    private fun startRepeatingJob(): Job {
-        return refreshJob
-            ?: viewModelScope.launch(Dispatchers.Main) {
-                while (coroutineContext.isActive) {
-                    refreshSatellitePosition()
-                    delay(delay)
-                }
+    private fun startRepeatingJob() {
+        refreshJob?.start()
+    }
+
+    private fun createJob(): Job {
+        return viewModelScope.launch(Dispatchers.Main) {
+            while (coroutineContext.isActive) {
+                Log.i("refresher", index.toString())
+                refreshSatellitePosition()
+                delay(delay)
             }
+        }
     }
 
     private fun refreshSatellitePosition() {
-        Log.i("refresher", index.toString())
         if (positionsList.isNotEmpty()) {
             _uiStatePositions.value = UIState(data = positionsList[index].toPositionFormat())
             index = if (index == maxIndex) 0 else index + 1
         }
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        // listen to parent fragment lifecycle. cancel job on pause.
-        refreshJob?.let {
-            viewModelScope.launch(Dispatchers.Main) {
-                it.cancelAndJoin()
-                refreshJob = null
-            }
-        }
-        super.onPause(owner)
     }
 
 }
