@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DataModuleProviders {
+object DataProviderModule {
 
     @Provides
     @Singleton
@@ -28,11 +28,12 @@ object DataModuleProviders {
     }
 
     @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext appContext: Context): AppDatabase {
         return Room.databaseBuilder(
             appContext,
             AppDatabase::class.java,
-            Constants.DATABASE_NAME
+            Constants.DATABASE_NAME,
         ).build()
     }
 

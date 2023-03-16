@@ -8,13 +8,13 @@ import java.util.*
 
 fun String.formatDate(): String =
     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(this)
-        ?.let { SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(it) } ?: ""
+        ?.let { SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(it) } ?: this
 
 
 fun Int.formatDigit(): String =
     NumberFormat.getNumberInstance(Locale.GERMANY)
         .format(this)
 
-fun PositionModel.toFormattedString(): String {
+fun PositionModel.toPositionFormat(): String {
     return "($posX,$posY)"
 }

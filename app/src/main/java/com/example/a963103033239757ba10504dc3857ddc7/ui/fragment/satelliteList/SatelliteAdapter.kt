@@ -6,8 +6,8 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.a963103033239757ba10504dc3857ddc7.databinding.ItemSatelliteLayoutBinding
 import com.example.a963103033239757ba10504dc3857ddc7.data.model.satellite.SatelliteListModelItem
+import com.example.a963103033239757ba10504dc3857ddc7.databinding.ItemSatelliteLayoutBinding
 import java.util.*
 
 class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :
@@ -27,7 +27,7 @@ class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        val isLastItem = itemList.lastIndex == position // hide divider for last item
+        val isLastItem: Boolean = itemList.lastIndex == position // hide divider for last item
         holder.bind(item, isLastItem)
     }
 
@@ -54,19 +54,20 @@ class SatelliteAdapter(var itemList: MutableList<SatelliteListModelItem>) :
         return object : Filter() {
             override fun performFiltering(text: CharSequence?): FilterResults {
                 val charString: String = text.toString()
-                itemListFiltered = if (charString.isEmpty()) {
-                    itemList
-                } else {
-                    val filteredList: MutableList<SatelliteListModelItem> = ArrayList()
-                    for (row in itemList) {
-                        if (row.name.lowercase(Locale.getDefault())
-                                .contains(charString.lowercase(Locale.getDefault()))
-                        ) {
-                            filteredList.add(row)
+                itemListFiltered =
+                    if (charString.isEmpty()) {
+                        itemList
+                    } else {
+                        val filteredList: MutableList<SatelliteListModelItem> = ArrayList()
+                        for (row in itemList) {
+                            if (row.name.lowercase(Locale.getDefault())
+                                    .contains(charString.lowercase(Locale.getDefault()))
+                            ) {
+                                filteredList.add(row)
+                            }
                         }
+                        filteredList
                     }
-                    filteredList
-                }
 
                 val filterResults = FilterResults()
                 filterResults.values = itemListFiltered

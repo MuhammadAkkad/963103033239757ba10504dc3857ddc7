@@ -32,13 +32,13 @@ class SatelliteDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSatelliteDetailBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
         args.let {
+            lifecycle.addObserver(viewModel);
             initializeObservers()
             getSatelliteDetails(it.id.toString())
         }
