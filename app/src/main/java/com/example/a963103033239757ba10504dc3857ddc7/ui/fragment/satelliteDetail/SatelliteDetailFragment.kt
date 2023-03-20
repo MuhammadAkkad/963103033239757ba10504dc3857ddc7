@@ -38,7 +38,6 @@ class SatelliteDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         args.let {
-            lifecycle.addObserver(viewModel);
             initializeObservers()
             getSatelliteDetails(it.id.toString())
         }
